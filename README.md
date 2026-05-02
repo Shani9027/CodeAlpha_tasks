@@ -63,7 +63,7 @@ npm run dev
 ## Notes
 - If `STRIPE_SECRET_KEY` is not set, payment intent endpoint will return a mocked client secret.
 - The frontend reads API base from `VITE_API_BASE` and defaults to `http://localhost:5000/api`.
-- UPI payment is available with ID `ojha63344-3@okicici` and can be scanned from the checkout page QR code.
+- UPI payment is available with ID `Shanisharma@boi` and can be scanned from the checkout page QR code.
 - Seed script creates sample products and an admin user.
 
 ## Folder Structure

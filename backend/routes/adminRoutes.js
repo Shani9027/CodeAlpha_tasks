@@ -1,0 +1,10 @@
+const express = require('express');
+const router = express.Router();
+const { getDashboardStats, getUsers, getOrders } = require('../controllers/adminController');
+const { protect, admin } = require('../middleware/authMiddleware');
+
+router.get('/stats', protect, admin, getDashboardStats);
+router.get('/users', protect, admin, getUsers);
+router.get('/orders', protect, admin, getOrders);
+
+module.exports = router;

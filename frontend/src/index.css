@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  @apply bg-slate-50 text-slate-900 antialiased;
+}
+
+button,
+input,
+textarea,
+select {
+  @apply outline-none;
+}
+
+.card-shadow {
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
+}

@@ -45,3 +45,8 @@ A full-stack social media platform with real-time features.
 ---
 
 ## 📂 Project Structure
+
+---
+
+## 🔗 Repository Link
+[Click here to view the repository] (https://github.com/Shani9027/CodeAlpha_tasks)

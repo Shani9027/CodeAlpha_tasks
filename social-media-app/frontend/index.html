@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SocialHub - Connect, Share & Engage</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-colors duration-300">
+    <!-- Navigation Bar -->
+    <nav id="navbar" class="sticky top-0 z-50 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-8">
+                <a href="index.html" class="text-2xl font-bold text-blue-600 dark:text-blue-400 flex items-center space-x-2">
+                    <span>📱</span>
+                    <span>SocialHub</span>
+                </a>
+            </div>
+
+            <div class="flex-1 max-w-md mx-4 hidden md:block">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    placeholder="Search users & posts..."
+                    class="w-full px-4 py-2 rounded-full bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <!-- Notifications -->
+                <div class="relative">
+                    <button id="notificationBell" class="relative p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full">
+                        🔔
+                        <span id="notificationBadge" class="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
+                    </button>
+                    <div id="notificationDropdown" class="hidden absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg max-h-96 overflow-y-auto">
+                        <!-- Notifications will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Dark Mode Toggle -->
+                <button id="darkModeToggle" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full">
+                    🌙
+                </button>
+
+                <button id="navAuthBtn" class="px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition">Login / Sign Up</button>
+
+                <!-- User Menu -->
+                <div class="relative">
+                    <button id="userMenuBtn" class="flex items-center space-x-2 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg" aria-label="User menu">
+                        <span class="text-xl">☰</span>
+                        <img id="navUserImage" src="https://via.placeholder.com/32" alt="User avatar" class="w-8 h-8 rounded-full">
+                        <span class="hidden md:block">Menu</span>
+                    </button>
+                    <div id="userDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg py-2">
+                        <a href="#" id="navProfile" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">👤 Profile</a>
+                        <a href="#" id="navMessages" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">💬 Messages</a>
+                        <a href="#" id="navSaved" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">🔖 Saved Posts</a>
+                        <hr class="my-2 border-gray-200 dark:border-gray-700">
+                        <button id="logoutBtn" class="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-red-600">🚪 Logout</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div id="backendStatusBanner" class="hidden max-w-7xl mx-auto mt-4 px-4 py-3 rounded-lg text-white bg-red-600 shadow-sm flex items-center justify-between">
+        <span id="backendStatusMessage">Unable to connect to the backend. Please start the server and refresh.</span>
+        <button id="retryBackendBtn" class="ml-4 px-3 py-1 bg-white text-red-600 rounded-lg font-semibold">Retry</button>
+    </div>
+
+    <!-- Main Container -->
+    <div class="max-w-7xl mx-auto px-4">
+        <section class="hero-banner mt-6 rounded-[2rem] overflow-hidden shadow-2xl bg-gradient-to-r from-cyan-500 via-sky-600 to-violet-700 text-white p-8 relative">
+            <div class="absolute inset-0 pointer-events-none overflow-hidden">
+                <div class="absolute -top-10 -left-10 w-64 h-64 rounded-full bg-white/10 blur-3xl"></div>
+                <div class="absolute -bottom-10 right-10 w-72 h-72 rounded-full bg-white/10 blur-3xl"></div>
+                <div class="absolute top-24 right-24 w-28 h-28 rounded-full bg-white/20 blur-2xl"></div>
+            </div>
+            <div class="relative grid gap-10 lg:grid-cols-[1.4fr_0.9fr] items-center">
+                <div>
+                    <div class="inline-flex items-center gap-3 bg-white/10 px-4 py-2 rounded-full text-sm uppercase tracking-[0.3em] text-slate-100/85">
+                        <span class="text-2xl">✨</span>
+                        <span>Next-level social experience</span>
+                    </div>
+                    <h1 class="mt-6 text-5xl md:text-6xl font-extrabold leading-tight tracking-tight">Create. Connect. Celebrate every moment.</h1>
+                    <p class="mt-5 max-w-2xl text-lg text-slate-100/90">From instant posts to real-time chat and trending communities, SocialHub brings your network alive with bold interaction and immersive style.</p>
+                    <div class="mt-8 flex flex-col sm:flex-row gap-4">
+                        <button id="openFeedBtn" class="px-8 py-3 rounded-full bg-white text-slate-900 font-semibold shadow-xl shadow-slate-900/20 hover:bg-slate-100 transition">Open Feed</button>
+                        <button id="startPostingBtn" class="px-8 py-3 rounded-full border border-white/60 bg-white/10 text-white hover:bg-white/20 transition">Start Posting</button>
+                    </div>
+                    <div class="mt-8 grid gap-4 sm:grid-cols-3">
+                        <div class="rounded-3xl bg-white/10 p-5 border border-white/10 backdrop-blur-lg">
+                            <p class="text-sm uppercase tracking-[0.2em] text-slate-200">Active members</p>
+                            <p class="mt-3 text-3xl font-bold">21K+</p>
+                        </div>
+                        <div class="rounded-3xl bg-white/10 p-5 border border-white/10 backdrop-blur-lg">
+                            <p class="text-sm uppercase tracking-[0.2em] text-slate-200">Messages today</p>
+                            <p class="mt-3 text-3xl font-bold">4.8K+</p>
+                        </div>
+                        <div class="rounded-3xl bg-white/10 p-5 border border-white/10 backdrop-blur-lg">
+                            <p class="text-sm uppercase tracking-[0.2em] text-slate-200">Trending tags</p>
+                            <p class="mt-3 text-3xl font-bold">#Inspired</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <div class="rounded-[2rem] bg-white/10 border border-white/15 p-6 shadow-2xl shadow-slate-950/15 backdrop-blur-lg">
+                        <h2 class="text-xl font-bold">Live moments</h2>
+                        <p class="mt-3 text-slate-100/85">Your feed updates in real time with posts, messages and trending stories.</p>
+                        <div class="mt-6 grid gap-4">
+                            <div class="rounded-3xl bg-slate-900/40 p-4">
+                                <p class="text-sm uppercase tracking-[0.25em] text-slate-300">New posts</p>
+                                <p class="mt-2 text-3xl font-bold">148</p>
+                            </div>
+                            <div class="rounded-3xl bg-slate-900/40 p-4">
+                                <p class="text-sm uppercase tracking-[0.25em] text-slate-300">Chats online</p>
+                                <p class="mt-2 text-3xl font-bold">3.2K</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="rounded-[2rem] bg-white/10 border border-white/15 p-6 shadow-2xl shadow-slate-950/15 backdrop-blur-lg">
+                        <p class="text-sm uppercase tracking-[0.25em] text-slate-200">Featured community</p>
+                        <h3 class="mt-3 text-2xl font-bold">Creative Builders</h3>
+                        <p class="mt-3 text-slate-100/85">Join a community that shares design ideas, code snippets, and growth stories.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mt-8 grid gap-4 sm:grid-cols-3">
+            <div class="rounded-[2rem] bg-white p-6 shadow-lg border border-slate-200">
+                <p class="text-sm uppercase tracking-[0.3em] text-blue-600">Trusted</p>
+                <h3 class="mt-4 text-xl font-bold text-slate-900">Seamless collaboration</h3>
+                <p class="mt-3 text-slate-600">Share posts, comment instantly, and invite friends in one click.</p>
+            </div>
+            <div class="rounded-[2rem] bg-white p-6 shadow-lg border border-slate-200">
+                <p class="text-sm uppercase tracking-[0.3em] text-violet-600">Powerful</p>
+                <h3 class="mt-4 text-xl font-bold text-slate-900">Real-time conversations</h3>
+                <p class="mt-3 text-slate-600">Stay connected with live chat, instant notifications, and smart replies.</p>
+            </div>
+            <div class="rounded-[2rem] bg-white p-6 shadow-lg border border-slate-200">
+                <p class="text-sm uppercase tracking-[0.3em] text-cyan-600">Creative</p>
+                <h3 class="mt-4 text-xl font-bold text-slate-900">Vibrant communities</h3>
+                <p class="mt-3 text-slate-600">Discover trending topics, connect with new friends, and grow your audience.</p>
+            </div>
+        </section>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4 mt-4">
+            <!-- Left Sidebar -->
+            <aside class="hidden lg:block">
+                <div class="sticky top-20 space-y-4">
+                    <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                        <h3 class="font-bold text-lg mb-4">Menu</h3>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="nav-link p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg block" data-page="home">🏠 Home</a></li>
+                            <li><a href="#" class="nav-link p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg block" data-page="messages">💬 Messages</a></li>
+                            <li><a href="#" class="nav-link p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg block" data-page="notifications">🔔 Notifications</a></li>
+                            <li><a href="#" class="nav-link p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg block" data-page="profile">👤 Profile</a></li>
+                            <li><a href="#" class="nav-link p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg block" data-page="saved">🔖 Saved</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Feed -->
+            <main id="mainContent" class="md:col-span-2 lg:col-span-2">
+                <!-- Create Post Section -->
+                <div id="createPostSection" class="hidden bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm mb-4">
+                    <div class="flex items-start space-x-4">
+                        <img id="createPostUserImage" src="https://via.placeholder.com/48" alt="You" class="w-12 h-12 rounded-full">
+                        <div class="flex-1">
+                            <textarea 
+                                id="postContent" 
+                                placeholder="What's on your mind?"
+                                class="w-full px-4 py-3 bg-gray-100 dark:bg-gray-700 rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-12"
+                                rows="2"
+                            ></textarea>
+                            <div class="mt-3 flex items-center space-x-2">
+                                <input 
+                                    type="file" 
+                                    id="postImageInput" 
+                                    accept="image/*" 
+                                    class="hidden"
+                                >
+                                <button id="imageUploadBtn" class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">🖼️ Photo</button>
+                                <button id="createPostBtn" class="ml-auto px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 font-semibold">Post</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Posts Feed -->
+                <div id="postsFeed" class="space-y-4">
+                    <!-- Posts will be loaded here -->
+                </div>
+
+                <!-- Loading indicator -->
+                <div id="loadingIndicator" class="hidden text-center py-8">
+                    <div class="animate-spin text-4xl">⏳</div>
+                </div>
+
+                <!-- Load more button -->
+                <button id="loadMoreBtn" class="w-full py-3 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg font-semibold mb-4 hidden">
+                    Load More
+                </button>
+            </main>
+
+            <!-- Right Sidebar -->
+            <aside class="hidden md:block">
+                <div class="sticky top-20 space-y-4">
+                    <!-- Suggested Users -->
+                    <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                        <h3 class="font-bold text-lg mb-4">Suggestions For You</h3>
+                        <div id="suggestedUsers" class="space-y-3">
+                            <!-- Suggested users will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Trending -->
+                    <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                        <h3 class="font-bold text-lg mb-4">Trending</h3>
+                        <div class="space-y-3">
+                            <div class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer">#Technology</div>
+                            <div class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer">#WebDevelopment</div>
+                            <div class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer">#SocialMedia</div>
+                            <div class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer">#Innovation</div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- Modal Overlay -->
+    <div id="modalOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-40 flex items-center justify-center">
+        <div id="modalContent" class="bg-white dark:bg-gray-800 rounded-lg max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
+            <!-- Modal content will be inserted here -->
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div id="authModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full mx-4 p-6">
+            <div class="mb-6">
+                <h2 id="authModalTitle" class="text-2xl font-bold mb-2">Login to SocialHub</h2>
+                <p class="text-gray-600 dark:text-gray-400">Connect with friends and share your moments</p>
+            </div>
+
+            <form id="authForm" class="space-y-4">
+                <div id="authError" class="hidden text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 rounded-lg p-3"></div>
+                <input 
+                    type="text" 
+                    id="nameInput" 
+                    placeholder="Full Name"
+                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 hidden"
+                >
+                <input 
+                    type="email" 
+                    id="emailInput" 
+                    placeholder="Email"
+                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                <input 
+                    type="password" 
+                    id="passwordInput" 
+                    placeholder="Password"
+                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                <input 
+                    type="password" 
+                    id="confirmPasswordInput" 
+                    placeholder="Confirm Password"
+                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 hidden"
+                >
+                <button type="submit" id="authSubmitBtn" class="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold">
+                    Login
+                </button>
+            </form>
+
+            <div class="mt-4 text-center">
+                <span id="toggleAuthText" class="text-gray-600 dark:text-gray-400">
+                    Don't have an account? <button id="toggleAuthBtn" class="text-blue-600 dark:text-blue-400 font-semibold hover:underline">Sign Up</button>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/api.js"></script>
+    <script src="js/socket.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/posts.js"></script>
+    <script src="js/chat.js"></script>
+    <script src="js/notifications.js"></script>
+</body>
+</html>
